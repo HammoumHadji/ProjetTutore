@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.hardware.Camera;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -53,6 +54,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends Activity {
+
+    static int imageWidth,imageHeight,imageWidth2,imageHeight2;
     private static final String TAG = "OCVSample::Activity";
     private static Bitmap bmp, yourSelectedImage, bmpimg1, bmpimg2;
     private static ImageView iv1, iv2;
@@ -160,6 +163,7 @@ public class MainActivity extends Activity {
 
                 Intent photoPickerIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
                 startActivityForResult(photoPickerIntent, CAM_REQUEST);
+
                 imgNo = 1;
             }
         });
@@ -358,12 +362,12 @@ public class MainActivity extends Activity {
                 // duplicate
                 {
                     text = finalMatchesList.size()
-                            + " matches were found. Possible duplicate image.\nTime taken="
+                            + " Possible qu'il y'ait dupplication d'image.\nTemps de reponse="
                             + (endTime - startTime) + "ms";
                     isDuplicate = true;
                 } else {
                     text = finalMatchesList.size()
-                            + " matches were found. Images aren't similar.\nTime taken="
+                            + " Les images sont differentes .\ntemps de reponse="
                             + (endTime - startTime) + "ms";
                     isDuplicate = false;
                 }
@@ -384,7 +388,7 @@ public class MainActivity extends Activity {
                 message.setText(text);
                 alertDialog.setView(view);
                 shouldBeDuplicate
-                        .setText("These images are actually duplicates.");
+                        .setText("Les images sont duppliquées.");
                 alertDialog.setPositiveButton("Add to logs",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,
@@ -400,7 +404,7 @@ public class MainActivity extends Activity {
                                     bw = new BufferedWriter(fw);
                                     bw.write("Algorithm used: "
                                             + descriptorType
-                                            + "\nHamming distance: "
+                                            + "\ndistance de Hamming : "
                                             + min_dist + "\nMinimum good matches: "+min_matches
                                             +"\nMatches found: "+matchesFound+"\nTime elapsed: "+(endTime-startTime)+"seconds\n"+ path1
                                             + " was compared to " + path2
@@ -472,6 +476,7 @@ public class MainActivity extends Activity {
 
         void compare() {
             try {
+
                 bmpimg1 = bmpimg1.copy(Bitmap.Config.ARGB_8888, true);
                 bmpimg2 = bmpimg2.copy(Bitmap.Config.ARGB_8888, true);
                 img1 = new Mat();
@@ -518,5 +523,7 @@ public class MainActivity extends Activity {
 
         }
     }
+
+
 
 }
