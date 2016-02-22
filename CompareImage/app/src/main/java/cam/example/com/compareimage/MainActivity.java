@@ -7,7 +7,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.hardware.Camera;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -473,6 +472,20 @@ public class MainActivity extends Activity {
             }
         }
 
+        /*
+
+        boolean imagesAreEqual(Bitmap i1, Bitmap i2)
+{
+if (i1.getHeight() != i2.getHeight())
+return false;
+if (i1.getWidth() != i2.getWidth()) return false;
+for (int y = 0; y < i1.getHeight(); ++y)
+for (int x = 0; x < i1.getWidth(); ++x)
+if (i1.getPixel(x, y) != i2.getPixel(x, y)) return false;
+return true;
+}
+
+         */
 
         void compare() {
             try {
