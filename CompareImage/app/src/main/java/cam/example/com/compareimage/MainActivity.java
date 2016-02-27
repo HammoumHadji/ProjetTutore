@@ -53,8 +53,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends Activity {
-
-    static int imageWidth,imageHeight,imageWidth2,imageHeight2;
     private static final String TAG = "OCVSample::Activity";
     private static Bitmap bmp, yourSelectedImage, bmpimg1, bmpimg2;
     private static ImageView iv1, iv2;
@@ -68,10 +66,11 @@ public class MainActivity extends Activity {
     private static long startTime, endTime;
     private static final int SELECT_PHOTO = 100;
 
-    private static int descriptor = DescriptorExtractor.BRISK;
+    //private static int descriptor = DescriptorExtractor.BRISK;
+    private static int descriptor = DescriptorExtractor.ORB;
     private static String descriptorType;
-    private static int min_dist = 10;
-    private static int min_matches = 750;
+    private static int min_dist = 10;//10
+    private static int min_matches = 750;//750
 
     private static final int CAM_REQUEST = 1313;
 
@@ -106,9 +105,9 @@ public class MainActivity extends Activity {
         iv2 = (ImageView) MainActivity.this.findViewById(R.id.img2);
         start = (Button) MainActivity.this.findViewById(R.id.button1);
         tv = (TextView) MainActivity.this.findViewById(R.id.tv);
-        iv1.setImageResource(R.drawable.photo1);
+        iv1.setImageResource(R.drawable.photo);
         //iv1.setOnClickListener(new btnTakePhotoClicker());
-        iv2.setImageResource(R.drawable.photo2);
+        iv2.setImageResource(R.drawable.parcour);
 
         run();
     }
@@ -146,7 +145,7 @@ public class MainActivity extends Activity {
         else if (descriptor == DescriptorExtractor.ORB)
             descriptorType = "ORB";
         else if (descriptor == DescriptorExtractor.SIFT)
-            descriptorType = "SIFT";
+            descriptorType = "SIFT";// definit le nombre de points d'echantillonnage
         else if(descriptor == DescriptorExtractor.SURF)
             descriptorType = "SURF";
         System.out.println(descriptorType);
@@ -162,7 +161,6 @@ public class MainActivity extends Activity {
 
                 Intent photoPickerIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
                 startActivityForResult(photoPickerIntent, CAM_REQUEST);
-
                 imgNo = 1;
             }
         });
@@ -189,14 +187,14 @@ public class MainActivity extends Activity {
 					}*/
                     bmpimg1 = Bitmap.createScaledBitmap(bmpimg1, 100, 100, true);
                     bmpimg2 = Bitmap.createScaledBitmap(bmpimg2, 100, 100, true);
-                    Mat img1 = new Mat();
-                    Utils.bitmapToMat(bmpimg1, img1);
-                    Mat img2 = new Mat();
-                    Utils.bitmapToMat(bmpimg2, img2);
-                    Imgproc.cvtColor(img1, img1, Imgproc.COLOR_RGBA2GRAY);
-                    Imgproc.cvtColor(img2, img2, Imgproc.COLOR_RGBA2GRAY);
-                    img1.convertTo(img1, CvType.CV_32F);
-                    img2.convertTo(img2, CvType.CV_32F);
+                    Mat img11 = new Mat();
+                    Utils.bitmapToMat(bmpimg1, img11);
+                    Mat img22 = new Mat();
+                    Utils.bitmapToMat(bmpimg2, img22);
+                    Imgproc.cvtColor(img11, img11, Imgproc.COLOR_RGBA2GRAY);
+                    Imgproc.cvtColor(img22, img22, Imgproc.COLOR_RGBA2GRAY);
+                    img11.convertTo(img11, CvType.CV_32F);
+                    img22.convertTo(img22, CvType.CV_32F);
                     //Log.d("ImageComparator", "img1:"+img1.rows()+"x"+img1.cols()+" img2:"+img2.rows()+"x"+img2.cols());
                     Mat hist1 = new Mat();
                     Mat hist2 = new Mat();
@@ -204,16 +202,16 @@ public class MainActivity extends Activity {
                     MatOfInt channels = new MatOfInt(0);
                     ArrayList<Mat> bgr_planes1= new ArrayList<Mat>();
                     ArrayList<Mat> bgr_planes2= new ArrayList<Mat>();
-                    Core.split(img1, bgr_planes1);
-                    Core.split(img2, bgr_planes2);
+                    Core.split(img11, bgr_planes1);
+                    Core.split(img22, bgr_planes2);
                     MatOfFloat histRanges = new MatOfFloat (0f, 180f);
                     boolean accumulate = false;
                     Imgproc.calcHist(bgr_planes1, channels, new Mat(), hist1, histSize, histRanges, accumulate);
                     Core.normalize(hist1, hist1, 0, hist1.rows(), Core.NORM_MINMAX, -1, new Mat());
                     Imgproc.calcHist(bgr_planes2, channels, new Mat(), hist2, histSize, histRanges, accumulate);
                     Core.normalize(hist2, hist2, 0, hist2.rows(), Core.NORM_MINMAX, -1, new Mat());
-                    img1.convertTo(img1, CvType.CV_32F);
-                    img2.convertTo(img2, CvType.CV_32F);
+                    img11.convertTo(img11, CvType.CV_32F);
+                    img22.convertTo(img22, CvType.CV_32F);
                     hist1.convertTo(hist1, CvType.CV_32F);
                     hist2.convertTo(hist2, CvType.CV_32F);
 
@@ -336,6 +334,8 @@ public class MainActivity extends Activity {
         @Override
         protected Void doInBackground(Void... arg0) {
             // TODO Auto-generated method stub
+
+
             compare();
             return null;
         }
@@ -361,12 +361,12 @@ public class MainActivity extends Activity {
                 // duplicate
                 {
                     text = finalMatchesList.size()
-                            + " Possible qu'il y'ait dupplication d'image.\nTemps de reponse="
+                            + " matches were found. Possible duplicate image.\nTime taken="
                             + (endTime - startTime) + "ms";
                     isDuplicate = true;
                 } else {
                     text = finalMatchesList.size()
-                            + " Les images sont differentes .\ntemps de reponse="
+                            + " matches were found. Images aren't similar.\nTime taken="
                             + (endTime - startTime) + "ms";
                     isDuplicate = false;
                 }
@@ -387,7 +387,7 @@ public class MainActivity extends Activity {
                 message.setText(text);
                 alertDialog.setView(view);
                 shouldBeDuplicate
-                        .setText("Les images sont duppliquées.");
+                        .setText("These images are actually duplicates.");
                 alertDialog.setPositiveButton("Add to logs",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,
@@ -403,7 +403,7 @@ public class MainActivity extends Activity {
                                     bw = new BufferedWriter(fw);
                                     bw.write("Algorithm used: "
                                             + descriptorType
-                                            + "\ndistance de Hamming : "
+                                            + "\nHamming distance: "
                                             + min_dist + "\nMinimum good matches: "+min_matches
                                             +"\nMatches found: "+matchesFound+"\nTime elapsed: "+(endTime-startTime)+"seconds\n"+ path1
                                             + " was compared to " + path2
@@ -472,24 +472,9 @@ public class MainActivity extends Activity {
             }
         }
 
-        /*
-
-        boolean imagesAreEqual(Bitmap i1, Bitmap i2)
-{
-if (i1.getHeight() != i2.getHeight())
-return false;
-if (i1.getWidth() != i2.getWidth()) return false;
-for (int y = 0; y < i1.getHeight(); ++y)
-for (int x = 0; x < i1.getWidth(); ++x)
-if (i1.getPixel(x, y) != i2.getPixel(x, y)) return false;
-return true;
-}
-
-         */
 
         void compare() {
             try {
-
                 bmpimg1 = bmpimg1.copy(Bitmap.Config.ARGB_8888, true);
                 bmpimg2 = bmpimg2.copy(Bitmap.Config.ARGB_8888, true);
                 img1 = new Mat();
@@ -536,7 +521,5 @@ return true;
 
         }
     }
-
-
 
 }
