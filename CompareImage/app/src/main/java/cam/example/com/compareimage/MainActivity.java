@@ -53,13 +53,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends Activity {
+
+    public MainActivity instance;
     private static final String TAG = "OCVSample::Activity";
     private static Bitmap bmp, yourSelectedImage, bmpimg1, bmpimg2;
     private static ImageView iv1, iv2;
     private static TextView tv;
     private static String path1, path2;
     private static String text;
-    private static Button start;
+    private static Button start,Ajouter;
     private static int imgNo = 0;
     private static Uri selectedImage;
     private static InputStream imageStream;
@@ -67,9 +69,9 @@ public class MainActivity extends Activity {
     private static final int SELECT_PHOTO = 100;
 
     //private static int descriptor = DescriptorExtractor.BRISK;
-    private static int descriptor = DescriptorExtractor.ORB;
+    private static int descriptor = DescriptorExtractor.FREAK;
     private static String descriptorType;
-    private static int min_dist = 10;//10
+    private static int min_dist = 20;//10
     private static int min_matches = 750;//750
 
     private static final int CAM_REQUEST = 1313;
@@ -104,10 +106,14 @@ public class MainActivity extends Activity {
         iv1 = (ImageView) MainActivity.this.findViewById(R.id.img1);
         iv2 = (ImageView) MainActivity.this.findViewById(R.id.img2);
         start = (Button) MainActivity.this.findViewById(R.id.button1);
+
+
         tv = (TextView) MainActivity.this.findViewById(R.id.tv);
         iv1.setImageResource(R.drawable.photo);
         //iv1.setOnClickListener(new btnTakePhotoClicker());
         iv2.setImageResource(R.drawable.parcour);
+
+
 
         run();
     }
@@ -176,6 +182,8 @@ public class MainActivity extends Activity {
                 imgNo = 2;
             }
         });
+
+
         start.setOnClickListener(new View.OnClickListener() {
 
             @Override
